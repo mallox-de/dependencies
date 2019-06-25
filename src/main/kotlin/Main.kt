@@ -51,6 +51,8 @@ fun main() {
 class Initializer {
     companion object {
         fun initWorkingDir(workingDir: String) {
+            File(workingDir).mkdirs()
+
             val jinjava = Jinjava()
             val context = mapOf<String, Any>("workingDir" to workingDir, "mavenHome" to "$workingDir/m2")
 

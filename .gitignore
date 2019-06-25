@@ -1,4 +1,5 @@
-/workingdir
 /.idea
 /.gradle
+/build
+/workingdir
 **/.DS_Store
