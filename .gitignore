@@ -1,3 +1,4 @@
 /workingdir
 /.idea
 /.gradle
+**/.DS_Store
