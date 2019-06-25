@@ -100,7 +100,7 @@ RETURN a, b, n, m
 -------------------------------------
 
 # Variante b:
-MATCH (a:Artifact {  type: "ear",  groupId: "de.gothaer.template",  artifactId: "template" })<--(av:ArtifactVersion {version:'7.5.0'})
+MATCH (a:Artifact {  type: "ear",  groupId: "com.charlyghislain.authenticator",  artifactId: "example-ear" })<--(av:ArtifactVersion {version:'1.0.6'})
 MATCH (av)-[:DEPEND_ON_ARTIFACT_VERSION*]->(oav1:ArtifactVersion)
 MATCH (av)-[:DEPEND_ON_ARTIFACT_VERSION*]->(oav2:ArtifactVersion)
 WITH a,av,oav1,oav2
@@ -109,18 +109,13 @@ WHERE oav1 <> oav2
 RETURN a,av,oav1,oav2,conflict
 
 
-# Artifacts:
-MATCH (a:Artifact {  type: "ear",  groupId: "de.gothaer.template",  artifactId: "template" })<--(av:ArtifactVersion {version:'7.5.0'})
+# Artifacts: ", "", "1.0.6
+MATCH (a:Artifact {  type: "ear",  groupId: "com.charlyghislain.authenticator",  artifactId: "example-ear" })<--(av:ArtifactVersion {version:'1.0.6'})
 MATCH (av)--(rv:ArtifactVersion)--(ra:Artifact)--(ag:ArtifactGroup)
 RETURN a, av, ra, rv, ag
 
 # 
-MATCH (a:Artifact {  type: "ear",  groupId: "de.gothaer.template",  artifactId: "template" })<--(av:ArtifactVersion {version:'7.5.0'})
-MATCH (av)-[:DEPEND_ON_ARTIFACT_VERSION*]->(oav:ArtifactVersion)-[:IS_VERSION_OF]->(oa:Artifact)
-RETURN a, av, oav, oa
-
-# "de.gothaer.app.oks", "IdgOnlineKundenspiegel", "5.2.3",
-MATCH (a:Artifact {  type: "ear",  groupId: "de.gothaer.app.oks",  artifactId: "IdgOnlineKundenspiegel" })<--(av:ArtifactVersion {version:'5.2.3'})
+MATCH (a:Artifact {  type: "ear",  groupId: "com.charlyghislain.authenticator",  artifactId: "example-ear" })<--(av:ArtifactVersion {version:'1.0.6'})
 MATCH (av)-[:DEPEND_ON_ARTIFACT_VERSION*]->(oav:ArtifactVersion)-[:IS_VERSION_OF]->(oa:Artifact)
 RETURN a, av, oav, oa
 
