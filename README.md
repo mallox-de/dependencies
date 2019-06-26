@@ -62,10 +62,9 @@ WITH collect(oav) as nodes, a
 UNWIND nodes as n
 UNWIND nodes as m
 WITH * WHERE id(n) < id(m)
-WITH collect(n) + collect(m) as conflicts, a
-CALL apoc.path.spanningTree(a, {conflicts:conflicts, limit:1}) YIELD path
-RETURN path
-
+WITH collect(n) + collect(m) as conflicts
+UNWIND conflicts as nodes
+RETURN (nodes)--(:Artifact)
 
 
 

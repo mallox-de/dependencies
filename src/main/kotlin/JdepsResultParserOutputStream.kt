@@ -91,7 +91,7 @@ object AnalyseJavaDependencies
     }
 }
 
-class Expander(private val workdir: String, private val zipFile: File) : Closeable {
+class Expander(workdir: String, private val zipFile: File) : Closeable {
     private val tempDir = File(workdir, zipFile.name)
 
     fun expand(): File {

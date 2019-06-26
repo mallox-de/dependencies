@@ -1,6 +1,4 @@
-import net.lingala.zip4j.core.ZipFile
 import java.io.File
-import java.lang.IllegalStateException
 
 
 data class Dependency(
@@ -200,47 +198,47 @@ object QueryUtil {
         dependency: Dependency,
         ref: String = ""
     ): String {
-        return "($ref:${NodeLabel.Artifact.name} { ${ArtifactProperty.GroupId.key}: '${dependency.groupId}', ${ArtifactProperty.ArtifactId.key}: '${dependency.artifactId}', ${ArtifactProperty.Type.key}: '${dependency.type}' } )"
+        return "($ref:${NodeLabel.ARTIFACT.key} { ${ArtifactProperty.GroupId.key}: '${dependency.groupId}', ${ArtifactProperty.ArtifactId.key}: '${dependency.artifactId}', ${ArtifactProperty.Type.key}: '${dependency.type}' } )"
     }
 
     fun createArtifactGroup(
         dependency: Dependency,
         ref: String = ""
     ): String {
-        return "($ref:${NodeLabel.ArtifactGroup.name} { ${ArtifactProperty.GroupId.key}: '${dependency.groupId}'} )"
+        return "($ref:${NodeLabel.ARTIFACT_GROUP.key} { ${ArtifactProperty.GroupId.key}: '${dependency.groupId}'} )"
     }
 
     private fun createArtifactIndex(): String {
-        return "CREATE INDEX ON :${NodeLabel.Artifact.name}( ${ArtifactProperty.GroupId.key}, ${ArtifactProperty.ArtifactId.key}, ${ArtifactProperty.Type.key})"
+        return "CREATE INDEX ON :${NodeLabel.ARTIFACT.key}( ${ArtifactProperty.GroupId.key}, ${ArtifactProperty.ArtifactId.key}, ${ArtifactProperty.Type.key})"
     }
 
     fun createArtifactVersion(
         dependency: Dependency,
         ref: String = ""
     ): String {
-        return "($ref:${NodeLabel.ArtifactVersion.name} { ${ArtifactVersionProperty.Version.key}: '${dependency.version}', ${ArtifactProperty.GroupId.key}: '${dependency.groupId}', ${ArtifactProperty.ArtifactId.key}: '${dependency.artifactId}', ${ArtifactProperty.Type.key}: '${dependency.type}' } )"
+        return "($ref:${NodeLabel.ARTIFACT_VERSION.key} { ${ArtifactVersionProperty.Version.key}: '${dependency.version}', ${ArtifactVersionProperty.GroupId.key}: '${dependency.groupId}', ${ArtifactVersionProperty.ArtifactId.key}: '${dependency.artifactId}', ${ArtifactVersionProperty.Type.key}: '${dependency.type}' } )"
     }
 
     private fun createArtifactGroupIndex(): String {
-        return "CREATE INDEX ON :${NodeLabel.ArtifactGroup.name}(${ArtifactGroupProperty.GroupId.key})"
+        return "CREATE INDEX ON :${NodeLabel.ARTIFACT_GROUP.key}(${ArtifactGroupProperty.GroupId.key})"
     }
 
     private fun createArtifactVersionIndex(): String {
-        return "CREATE INDEX ON :${NodeLabel.ArtifactVersion.name}(${ArtifactVersionProperty.Version.key})"
+        return "CREATE INDEX ON :${NodeLabel.ARTIFACT_VERSION.key}(${ArtifactVersionProperty.Version.key})"
     }
 
     fun createClass(artifactVersionRefNameA: String, className: String, classRefName: String): String {
-        return """|MERGE ($classRefName:${NodeLabel.JavaClass.name} {${JavaClassProperty.Name.key}: '$className'})
+        return """|MERGE ($classRefName:${NodeLabel.JAVA_CLASS.key} {${JavaClassProperty.Name.key}: '$className'})
             |MERGE ($artifactVersionRefNameA)-[:${RelationType.PROVIDE_JAVA_CLASS}]->($classRefName)
             |""".trimMargin()
     }
 
     private fun createJavaClassIndex(): String {
-        return "CREATE INDEX ON :${NodeLabel.JavaClass.name}(${JavaClassProperty.Name.key})"
+        return "CREATE INDEX ON :${NodeLabel.JAVA_CLASS.key}(${JavaClassProperty.Name.key})"
     }
 
     fun createClassDependency(classRefName: String, dependencyClassRefName: String, className: String): String {
-        return """|MERGE ($dependencyClassRefName:${NodeLabel.JavaClass.name} {${JavaClassProperty.Name.key}: '$className'})
+        return """|MERGE ($dependencyClassRefName:${NodeLabel.JAVA_CLASS.key} {${JavaClassProperty.Name.key}: '$className'})
             |MERGE ($classRefName)-[:${RelationType.DEPEND_ON_EXTERNAL_JAVA_CLASS}]->($dependencyClassRefName)
             |""".trimMargin()
     }
@@ -254,4 +252,86 @@ object QueryUtil {
             createJavaClassIndex()
         )
     }
+}
+
+enum class RelationType {
+
+    /**
+     * Describe relation between a version ([NodeLabel.ARTIFACT_VERSION]) of an artifact ([NodeLabel.ARTIFACT]).
+     * <pre>
+     * (:ArtifactVersion) -[:IS_VERSION_OF]-> (:Artifact)
+    </pre> *
+     */
+    IS_VERSION_OF,
+    /**
+     * Describe relation between a version ([NodeLabel.ARTIFACT_VERSION]) of an artifact ([NodeLabel.ARTIFACT]).
+     * <pre>
+     * (:Artifact) -[:IS_GROUP_OF]-> (:ArtifactGroup)
+     * (:ArtifactVersion) -[:IS_GROUP_OF]-> (:ArtifactGroup)
+    </pre> *
+     */
+    IS_GROUP_OF,
+    /**
+     * Describe relation between a dependency of two versions of artifacts ([NodeLabel.ARTIFACT_VERSION]).
+     * <pre>
+     * (:ArtifactVersion) -[:DEPEND_ON_ARTIFACT_VERSION]-> (:ArtifactVersion)
+    </pre> *
+     */
+    DEPEND_ON_ARTIFACT_VERSION,
+    /**
+     * Describe relation between provided class ([NodeLabel.JAVA_CLASS]) of a artifact version ([NodeLabel.ARTIFACT_VERSION]).
+     * <pre>
+     * (:ArtifactVersion) -[:PROVIDE_JAVA_CLASS]-> (:JavaClass)
+    </pre> *
+     */
+    PROVIDE_JAVA_CLASS,
+    /**
+     * Describe relation between  class ([NodeLabel.JAVA_CLASS]) of a artifact version ([NodeLabel.ARTIFACT_VERSION]).
+     * <pre>
+     * (:ArtifactVersion) -[:DEPEND_ON_EXTERNAL_JAVA_CLASS]-> (:JavaClass)
+    </pre> *
+     */
+    DEPEND_ON_EXTERNAL_JAVA_CLASS,
+
+    /**
+     * Describe parent child relation between two version of artifacts ([NodeLabel.ARTIFACT_VERSION]).
+     * This is ordinary a child artifact to parent POM relation.
+     * <pre>
+     * (:ArtifactVersion) -[:IS_CHILD_OF_ARTIFACT_VERSION]-> (:ArtifactVersion)
+    </pre> *
+     */
+    IS_CHILD_OF_ARTIFACT_VERSION
+}
+
+/**
+ * Labels of nodes used in graph-db.
+ * @see RelationType
+ */
+enum class NodeLabel(val key: String) {
+    /**
+     * [.Artifact] describes an maven artifact.
+     * With properties:
+     * - `groupId`
+     * - `artifactId`
+     * - `type`
+     */
+    ARTIFACT("Artifact"),
+    /**
+     * [.ArtifactVersion] describes a version of an maven artifact.
+     * With properties:
+     * - `version`
+     */
+    ARTIFACT_VERSION("ArtifactVersion"),
+    /**
+     * [.ArtifactGroup] describes a group of maven artifacts.
+     * With properties:
+     * - `groupId`
+     */
+    ARTIFACT_GROUP("ArtifactGroup"),
+    /**
+     * [.JavaClass] describes a class provided by an maven artifact version.
+     * With properties:
+     * - `name`
+     */
+    JAVA_CLASS("JavaClass")
 }

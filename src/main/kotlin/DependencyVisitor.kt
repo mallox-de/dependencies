@@ -42,8 +42,8 @@ class DependencyVisitor(
 }
 
 class CallbackStack(private val dependency: Dependency) {
-    val stack = Stack<(dependency: Dependency) -> Unit>()
-    var isDependencyProcessed = false
+    private val stack = Stack<(dependency: Dependency) -> Unit>()
+    private var isDependencyProcessed = false
 
     fun push(callback: (dependency: Dependency) -> Unit) {
         if (isDependencyProcessed) callback.invoke(dependency)

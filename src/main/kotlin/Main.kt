@@ -38,8 +38,8 @@ fun main() {
 
     println("create dependencies")
 
-    val dependency = Dependency("com.charlyghislain.authenticator", "example-ear", "1.0.6", "ear")
-    //val dependency = Dependency("net.sourceforge.htmlunit", "htmlunit", "2.35.0")
+    // val dependency = Dependency("com.charlyghislain.authenticator", "example-ear", "1.0.6", "ear")
+    val dependency = Dependency("net.sourceforge.htmlunit", "htmlunit", "2.35.0")
     // val dependency = Dependency("org.apache.commons", "commons-text", "1.6", "jar")
     builder.build(dependency)
 
